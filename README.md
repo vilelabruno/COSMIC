@@ -13,9 +13,497 @@ pip3 install dist/pyExtremeHelper
 
  Função     def ler_arquivo_dat(nome_arquivo):
 
-# Documentação da função ler_arquivo_dat
+##Uso
 
-## Entrada
+
+ Função     def ler_arquivo_dat(nome_arquivo):
+
+Para utilizar a função `ler_arquivo_dat`, é necessário passar o nome do arquivo que deseja ler como argumento. A função irá retornar um DataFrame do pandas que contém o conteúdo do arquivo lido.
+
+Exemplo de uso:
+
+```python
+df = ler_arquivo_dat('meu_arquivo.dat')
+```
+Onde 'meu_arquivo.dat' é o arquivo que você deseja ler.
+ Função     def calculate_B_diff(df1, df2):
+
+### Guia de utilização da função `calculate_B_diff`
+
+Para executar a função `calculate_B_diff`, você precisará passar dois argumentos:
+* `df1` - sera o primeiro data frame que representa o conjunto de dados do primeiro satélite.
+* `df2` - será o segundo data frame que representa o conjunto de dados do segundo satélite.
+
+A função irá retornar a diferença de campo magnético entre os dois satélites.
+
+Exemplo de uso:
+
+```python
+import pandas as pd
+
+# Carregue seu dado em df1 e df2
+df1 = pd.read_csv('Caminho para seu arquivo /satellite_1.csv')
+df2 = pd.read_csv('Caminho para seu arquivo /satellite_2.csv')
+
+# Calcule a diferença de campo magnético
+B_diff = calculate_B_diff(df1, df2)
+
+print(B_diff)
+```
+
+Certifique-se que seus data frames contêm as colunas necessárias ('B_vec_xyz_gse__C1_CP_FGM_FULL1', 'B_vec_xyz_gse__C1_CP_FGM_FULL2', 'B_vec_xyz_gse__C1_CP_FGM_FULL3') para que a função funcione corretamente.
+ Função     def calculate_r_diff(df1, df2):
+
+Para usar a função `calculate_r_diff(df1, df2)`, é necessário ter dois dataframes `df1` e `df2`, que correspondem aos dados dos dois satélites que você deseja medir a distância entre eles. Esses dataframes devem conter as seguintes colunas: 'sc_pos_xyz_gse__C1_CP_FGM_FULL1', 'sc_pos_xyz_gse__C1_CP_FGM_FULL2' e 'sc_pos_xyz_gse__C1_CP_FGM_FULL3', que representam as coordenadas tridimensionais de cada satélite. Simplesmente passe seus dataframes como argumentos de entrada ao chamar a função: `calculate_r_diff(df1, df2)`, e ela retornará um valor que representa a distância entre os dois satélites.
+ Função     def calculate_current_density(df1, df2, df3):
+
+Para utilizar a função `calculate_current_density(df1, df2, df3)`, você precisa fornecer três DataFrames como argumentos (df1, df2, df3). Esses DataFrames devem conter dados que serão usados para calcular a densidade de corrente. A função retorna uma série de pandas com a densidade de corrente calculada para cada linha dos DataFrames fornecidos.
+
+Por exemplo: 
+
+```python
+Jijk = calculate_current_density(df1, df2, df3)
+``` 
+
+Onde `Jijk` é a variável onde o resultado final será armazenado e `df1`, `df2` e `df3` são os DataFrames que você forneceu como argumentos.
+ Função     def curlometer(spacecraft1, spacecraft2, spacecraft3, spacecraft4):
+
+Para utilizar a função `curlometer`, forneça as medidas dos quatro veículos espaciais. A função vai retornar a densidade atual calculada pelo curlômetro. Siga o exemplo abaixo para usá-la:
+
+```python
+density_result = curlometer(spacecraft1, spacecraft2, spacecraft3, spacecraft4)
+```
+
+Note que `spacecraft1`, `spacecraft2`, `spacecraft3` e `spacecraft4` devem ser substituídos pelas medidas reais dos veículos espaciais. O resultado, `density_result`, é a densidade de corrente calculada.
+ Função     def calculate_mod_B(df, Bx_column, By_column, Bz_column):
+
+Para usar a função `calculate_mod_B`, você precisará fornecer quatro argumentos. O primeiro argumento (`df`) é um dataframe do pandas de onde os dados serão recebidos. Os próximos três argumentos (`Bx_column`, `By_column`, `Bz_column`) são as strings que correspondem aos nomes das colunas no dataframe que contém seus dados Bx, By e Bz, respectivamente. 
+
+A função retornará uma serie do pandas que representa o módulo de B (mod_B). 
+
+Exemplo de uso:
+
+```python
+df = pd.read_csv('dados.csv')
+Bx_column = 'Bx'
+By_column = 'By'
+Bz_column = 'Bz'
+mod_B = calculate_mod_B(df, Bx_column, By_column, Bz_column)
+``` 
+
+Isso irá retornar a série `mod_B` calculada a partir dos dados nas colunas Bx, By, Bz do dataframe do pandas `df`.
+ Função     def plot_mod_B(yy):
+
+## Como usar a função plot_mod_B(yy)
+
+A função `plot_mod_B(yy)` serve para traçar um gráfico simples de uma sequência de dados. Para usá-la, siga estes passos:
+
+1. Certifique-se de que a biblioteca `matplotlib.pyplot` esteja importada em seu código, pois é necessário para a criação do gráfico.
+2. Prepare a sequência de dados (`yy`) que você gostaria de visualizar em um gráfico. Esta sequência pode ser uma lista simples ou um array do Numpy, por exemplo.
+3. Chame a função `plot_mod_B(yy)`, passando sua sequência de dados como argumento.
+
+Aqui está um exemplo de uso:
+
+```python
+import matplotlib.pyplot as plt
+
+# sua sequência de dados
+dados = [1, 2, 3, 4, 5]
+
+# chame a função
+plot_mod_B(dados)
+```
+
+Após chamar a função, um gráfico simples será exibido, traçando seus dados na coordenada `Y` em função da sua posição na sequência em `X`.
+ Função     def calculate_PVI(x, tau=66):
+
+Para utilizar a função `calculate_PVI`, forneça uma série pandas como o primeiro argumento. Opcionalmente, você pode fornecer um segundo argumento, `tau`, que é um inteiro, default é 66.
+
+Aqui está um exemplo de como usar essa função:
+
+```python
+import pandas as pd
+
+# Criando uma série pandas
+x = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+# Chamando a função calculate_PVI
+PVI = calculate_PVI(x)
+
+# Imprimindo a resposta
+print(PVI)
+```
+
+A função retorna outra série pandas que representa o PVI calculado. Você pode então utilizar este resultado para a análise desejada.
+
+Lembre-se também que esta função depende do `pandas` e do `numpy`, então certifique-se de ter esses pacotes instalados e importados em seu script.
+ Função     def plot_data(PVI):
+
+# Como usar a função `plot_data(PVI)`
+
+Para usar a função `plot_data(PVI)`, basta tomar as seguintes etapas:
+
+1. Importe o módulo necessário executando: `import matplotlib.pyplot as plt`.
+2. Defina ou importe seus dados para uma variável que represente `PVI`.
+3. Chame a função `plot_data(PVI)`.
+4. A função irá gerar um gráfico de linha dos seus dados.
+
+Exemplo de uso:
+
+```python
+import matplotlib.pyplot as plt
+
+# Suponha que seus dados são a seguinte lista:
+PVI = [10, 15, 7, 10, 13]
+
+# Para plotar esses dados, simplesmente chame a função:
+plot_data(PVI)
+```
+
+Isso irá exibir um gráfico em linha dos seus dados.
+ Função     def norm(vector):
+
+# Guia de Utilização da função "norm"
+
+Esta função, chamada `norm`, é usado para calcular a norma de um vetor. Abaixo estão os passos sobre como usar esta função.
+
+## Como usar
+
+### Passo 1: Importe a biblioteca Numpy
+Para usar a função `norm`, você precisa primeiramente importar a biblioteca Numpy. Caso não a tenha, você pode instalar esta biblioteca via pip, da seguinte maneira:
+
+```
+pip install numpy
+```
+
+### Passo 2: Crie/Obtenha o vetor
+Você precisa criar ou obter um vetor ao qual deseja aplicar a função. Este vetor deve ser um array ou uma lista de números.
+
+### Passo 3: Use a função norm
+Chame a função norm e passe o vetor como argumento. Por exemplo:
+
+```python
+import numpy as np
+
+def norm(vector):
+    return np.sqrt(np.sum(np.square(vector)))
+
+vetor = np.array([1, 2, 3, 4, 5])
+normvetor = norm(vetor)
+
+print(normvetor)
+```
+
+A função `norm` retornará a norma do vetor, que é um número único.
+
+## Importante
+Assegure-se que o tipo de dado passado como argumento é compatível, a função `norm` espera receber um vetor de elementos que possam ser manipulados matematicamente.
+ Função     def dot(v1, v2):
+
+# Utilização
+
+A função `dot(v1, v2)` é usada para calcular o produto escalar (dot product) de dois vetores. 
+
+Você só precisa passar dois vetores como argumentos na função. Os vetores podem ser listas, tuplas ou arrays do numpy. 
+
+O produto escalar será retornado.
+
+Exemplo de uso:
+
+```python
+import numpy as np
+
+v1 = np.array([1, 2, 3])
+v2 = np.array([4, 5, 6])
+
+resultado = dot(v1, v2)
+print(resultado)  # Saída: 32
+```
+ Função     def angle(v1, v2):
+
+Para usar a função `angle(v1, v2)`, passe dois vetores `v1` e `v2` como argumentos. A função vai retornar o ângulo, em graus, entre esses dois vetores. 
+
+Os vetores (`v1`, `v2`) devem ser passados na forma de listas, tuplas ou arrays do Numpy. 
+
+Exemplo de uso:
+
+```python
+import numpy as np
+
+# defina os dois vetores
+v1 = np.array([1,2,3])
+v2 = np.array([4,5,6])
+
+# chame a função passando os vetores como argumentos
+angle = angle(v1, v2)
+
+print(f'O ângulo entre v1 e v2 é {angle} graus.')
+```
+ Função     def cs_detection(df, tau, theta_c):
+
+# Uso de `cs_detection(df, tau, theta_c)`
+
+Essa função é usada para detectar mudanças em uma série de dados, especificamente analisando a diferença de ângulos entre intervalos consecutivos de observações. Os parâmetros necessários são:
+
+- `df`: um DataFrame do pandas que contém a série de dados que você deseja analisar. 
+- `tau`: o tamanho do intervalo que a função deve considerar ao analisar a série. Por exemplo, se `tau` é 10, a função irá comparar os ângulos entre os primeiros 10 pontos e os 10 próximos. 
+- `theta_c`: é o valor mínimo do ângulo que será considerado como mudança. 
+
+A função retorna 1 se a frequência de ângulos maiores ou iguais a `theta_c` for maior que 15%, ou 0 caso contrário. Em outras palavras, retorna 1 se detectar mudanças significativas na série de dados e 0 se não. 
+
+Exemplo de uso:
+
+```python
+import pandas as pd
+
+dados = pd.DataFrame({ 'valores': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20] })
+mudanca = cs_detection(dados, 5, 0.8)
+```
+Neste exemplo, a função irá retornar se houve uma mudança significativa nos ângulos dos primeiros 5 pontos em comparação com os 5 pontos seguintes, considerando como mudança ângulos maiores ou iguais a 0.8.
+ Função     def limethod(df, theta_c = 35.0, tau_sec = 10):
+
+Para utilizar a função `limethod`, você precisa passar um DataFrame (pandas.DataFrame) para o parâmetro `df`, o qual contém seus dados, além de opcionais: `theta_c` (um float que define um limite, padrão é 35.0) e `tau_sec` (um inteiro que especifica o tempo em segundos, padrão é 10). 
+
+Exemplo de uso:
+
+```python
+import pandas as pd
+
+# seu DataFrame
+df = pd.read_csv("seu_arquivo.csv")
+
+# chamando a função limethod 
+resultado = limethod(df, theta_c = 50.0, tau_sec = 5)
+```
+
+Depois disso, `resultado` será um novo DataFrame contendo índices de tempo e as saídas do detector CS.
+ Função     def convert_to_float(s):
+
+Para usar a função `convert_to_float(s)`, você precisa passar uma string como argumento. Essa função tentará convertê-lo em um número de tipo float. Se a string passada contiver uma 'D', ela será substituída por 'E' para facilitar a conversão para float. Por exemplo:
+
+```python
+print(convert_to_float("1234D56"))
+```
+
+O código acima imprimirá `1234E56` como um número float. 
+
+Por favor, esteja ciente de que se a string fornecida não puder ser convertida em float, será lançada uma ValueError.
+ Função     def calculate_magnetic_volatility(df, B, tau=50, w=50):
+
+Para usar a função `calculate_magnetic_volatility`, você precisa passar os seguintes parâmetros: 
+
+- `df`: um DataFrame do pandas com seus dados 
+- `B`: uma string com o nome da coluna que contém o campo magnético 
+- `tau`: um número inteiro opcional para o valor de τ (padrão é 50) 
+- `w`: um número inteiro opcional para o tamanho da janela para calcular a volatilidade magnética (padrão é 50) 
+
+A função retornará uma série do pandas com a volatilidade magnética calculada. 
+
+Aqui está um exemplo de como você pode usar essa função: 
+
+```python
+df_vol_mag = calculate_magnetic_volatility(df, 'campo_magnetico', tau=100, w=30)
+```
+
+Neste exemplo, estamos calculando a volatilidade magnética de um DataFrame chamado `df` que tem uma coluna `'campo_magnetico'`, com um valor τ de 100 e um tamanho de janela de 30.
+ Função     def apply_gaussian_kernel(x_coords, sigma):
+
+## Como Utilizar a Função apply_gaussian_kernel
+
+Esta função é usada para aplicar um filtro gaussiano em uma lista de coordenadas.
+
+Aqui está um exemplo simples de como usar:
+
+```python
+x_coords = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+sigma = 1.0
+
+smoothed_coords = apply_gaussian_kernel(x_coords, sigma)
+```
+
+Neste exemplo, `x_coords` é a lista de coordenadas que você deseja suavizar e `sigma` é o parâmetro de desvio padrão para o filtro gaussiano. O resultado será armazenado na variável `smoothed_coords`.
+
+Modifique os valores de acordo com as necessidades do seu projeto.
+ Função     def declustering_function(data, u=30000, run=10):
+
+# Como usar a função `declustering_function`
+
+A função `declustering_function` é usada para aplicar a técnica de declustering em um conjunto de dados.
+
+### Sintaxe
+
+A função `declustering_function` toma três argumentos:
+
+```python 
+declustering_function(data, u=30000, run=10)
+```
+
+### Parâmetros
+
+1. `data`: A entrada de dados na qual a técnica de declustering será aplicada. Isso deve ser fornecido como uma estrutura de dados do Python, como um DataFrame ou uma lista.
+
+2. `u`(opcional): Este é um parâmetro de ajuste usado na técnica de declustering. O valor padrão é suficiente na maioria dos casos, mas pode ser ajustado para experimentação ou refinamento.
+
+3. `run`(opcional): Outro parâmetro de ajuste usado na técnica de declustering. Podem ser necessárias várias execuções (run) para completar o processo. O valor padrão é 10, mas isso pode ser ajustado conforme necessário.
+
+## Exemplo de uso
+
+Suponha que você tenha dados hospedados em um DataFrame do Pandas chamado `my_data`. Para aplicar a função de declustering a esses dados, você chamaria a função como abaixo:
+
+```python
+declustering_function(my_data, u=30000, run=10)
+```
+
+A função então retornará os dados resultantes após aplicar o processo de declustering.
+ Função         # Threshold and run are parameters for the function with default values
+
+Para usar esta função, forneça os parâmetros de *threshold* e *run*, que possuem valores padrão, assim como seus dados na variável `data`. A função divide seus dados em "Peaks Over Threshold" (POT) e "Values Below Threshold" (VBT). 
+
+Após essa divisão, a função calcula os POT desagrupados - aqueles com um intervalo maior que o valor de *run*. Em seguida, um gráfico é criado plotando points abaixo e acima do threshold, além dos pontos desagrupados. 
+
+Finalmente, a função retorna os POT desagrupados e o número total de clusters é impresso.
+
+Por exemplo:
+
+```python
+import pandas as pd
+
+# Substitute your data here
+data = pd.read_csv('your_file.csv')
+
+# Call the function with default threshold and run parameters
+result = your_function(data)
+
+# The output will be the declustered POT values and the total number of clusters is printed.
+``` 
+
+Note: certifique-se de que a variável 'value', que a função usa para cálculos e gráficos, esteja presente em seus dados.
+ Função     def stats_excess(data, threshold):
+
+# Guia de utilização para a função stats_excess()
+
+A função `stats_excess()` é usado para calcular a média e o desvio padrão de valores que excedem um determinado limite em um conjunto de dados. 
+
+## Como usar?
+
+1. **Parâmetros de entrada**
+
+    A função `stats_excess()` requer dois parâmetros:
+
+    * `data` - É a lista, array ou série de dados numéricos nos quais você deseja calcular a média e o desvio padrão de excesso.
+
+    * `threshold` - É o valor de limite que você deseja usar para determinar os valores excessivos.
+
+2. **Chamando a função**
+
+    Para usar a função, é simplesmente necessário chamar a função stats_excess com os parâmetros necessários. Por exemplo:
+
+        mean_excess, std_excess = stats_excess(data, threshold)
+     
+3. **Resultado da função**
+
+    A função retornará a média (`mean_excess`) e o desvio padrão (`std_excess`) dos valores que excedem o limite fornecido.
+
+Lembre-se de importar a biblioteca `numpy` como `np` antes de usar esta função, uma vez que ela utiliza funções `np.mean()` e `np.std()`. 
+
+Exemplo de uso da função:
+
+```python
+    import numpy as np
+
+    data = np.array([1,2, 3, 4, 5, 6, 7, 8, 9, 10])
+    threshold = 5
+  
+    # Invocando a função stats_excess
+    mean_excess, std_excess = stats_excess(data, threshold)
+  
+    print("Média do excesso: ", mean_excess)
+    print("Desvio Padrão do excesso: ", std_excess)
+```
+Estes passos devem ajudá-lo a usar `stats_excess()` na sua análise de dados.
+ Função     def plot_mean_excess(data, min_thresh, max_thresh, num_threshs=100):
+
+Para utilizar a função `plot_mean_excess` você precisa fornecer pelo menos três parâmetros: `data`, `min_thresh` e `max_thresh`. 
+
+`data`: esse é o seu conjunto de dados, no qual a função irá operar. 
+
+`min_thresh` e `max_thresh`: esses são seus limiares mínimo e máximo. A função irá gerar automaticamente 100 limiares entre esses valores para calcular o excesso médio e seu desvio padrão. 
+
+Se desejar criar mais ou menos do que 100 limiares, você pode fazer isso fornecendo um quarto parâmetro, `num_threshs`.
+
+A função irá gerar um gráfico com o excesso médio para cada limiar, junto com barras de erro representando o desvio padrão. O eixo x representará os limiares e o eixo y o excesso médio. O gráfico será exibido automaticamente.
+ Função     def fit_pot_model(data, min_threshold, max_threshold, num_thresholds):
+
+# Como usar a função fit_pot_model
+
+A função `fit_pot_model` é usada para ajustar um modelo Peaks Over Threshold (POT) a uma série de dados, dentro de um intervalo de limiares.
+
+Segue um exemplo de como você pode usar essa função:
+
+1. Primeiro, importe as bibliotecas necessárias:
+
+   ```python
+   import pandas as pd
+   import numpy as np
+   ```
+
+2. Prepare seus dados e certifique-se de que eles são um modelo pandas Series ou DataFrame.
+
+3. Usando a função `fit_pot_model`, forneça os seguintes parâmetros:
+
+    - `data`: Esta é a sua série ou DataFrame.
+    - `min_threshold`: Este é o valor mínimo do limiar.
+    - `max_threshold`: Este é o valor máximo do limiar.
+    - `num_thresholds`: Este é o número de limiares.
+
+    Por exemplo:
+
+   ```python
+   result = fit_pot_model(data, min_threshold=10, max_threshold=100, num_thresholds=10)
+   ```
+
+4. A função retornará um DataFrame com os parâmetros ajustados do modelo POT para cada limiar. Você pode visualizar o resultado utilizando:
+
+   ```python
+   print(result)
+   ```
+
+Isso é tudo o que você precisa para usar a função `fit_pot_model` em seus projetos!
+
+ Função     def plot_shape_parameter(results):
+
+# Utilização da função plot_shape_parameter
+
+Para utilizar a função `plot_shape_parameter`, você precisa de um DataFrame que foi retornado pela função `fit_pot_model`. Este DataFrame deve conter os parâmetros ajustados do modelo 'Peaks Over Threshold' (POT) para cada limite.
+
+Aqui está um exemplo de como a função `plot_shape_parameter` pode ser chamada:
+
+```python
+# Primeiro execute a função 'fit_pot_model' para obter o DataFrame 'results'
+results = fit_pot_model(data)
+
+# Agora você pode plotar o parâmetro 'Shape' com a função 'plot_shape_parameter'
+plot_shape_parameter(results)
+```
+
+Isso produzirá um gráfico mostrando a evolução do parâmetro 'Shape' em relação aos limites. Seu gráfico será exibido imediatamente por causa da linha `plt.show()`. 
+
+Note que não há um valor de retorno para esta função, pois seu principal objetivo é plotar e visualizar os dados.
+ Função     def plot_mean_residual_life(data, thresholds):
+
+Para utilizar essa função, basta seguir as etapas:
+
+1. Prepare seus dados. Essa função espera receber um conjunto de dados numéricos (em formato de lista ou array NumPy, por exemplo) através do parâmetro `data`.
+
+2. Defina seus thresholds. Isso significa decidir sobre quais valores (limites) você deseja analisar nos dados. Novamente, essa informação deve ser fornecida em formato de lista ou array NumPy ao parâmetro `thresholds`.
+
+3. Chame a função com seus dados e thresholds. Por exemplo: `plot_mean_residual_life(meus_dados, meus_thresholds)`. A função irá então gerar o gráfico Mean Residual Life (Média de Vida Residual).
+
+4. Analise os resultados. A função irá exibir um gráfico de pontos onde o eixo X representa os limites (thresholds) e o eixo Y o valor médio do excesso em relação ao limite. Uma linha vertical representando o ponto onde a taxa de variação dos valores médios se aproxima de uma constante também será exibida.
+
+## Documentação da função ler_arquivo_dat
+
+# Entrada
 
 A função ler_arquivo_dat recebe um único parâmetro:
 
