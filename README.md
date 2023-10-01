@@ -1,12 +1,13 @@
-# MyExtremes
+# pyExtremeHelper
 
 Um pacote Python para análise de eventos extremos.
 
 ## Instalação
-
+'''
 python3 setup.py sdist
-pip3 install dist/pyExtremeHelper
 
+pip3 install dist/pyExtremeHelper
+'''
 ## Funcionalidades
 
 
@@ -97,8 +98,6 @@ Os resultados armazenados são então usados para calcular a densidade de corren
 ## Saída
 A função retorna uma Serie do pandas `Jijk` representando a densidade de corrente.
 
-# Note:
-A documentação está fazendo suposições com base no código fornecido, já que não há informações sobre o tipo de dados, a estrutura ou o contexto dos dataframes de entrada. Por isso, pode haver ligeiras imprecisões no entendimento. Para uma documentação mais precisa, seria útil ter acesso a essas informações.
  Função     def curlometer(spacecraft1, spacecraft2, spacecraft3, spacecraft4):
 
 # Documentação da Função Curlometer
