@@ -1,12 +1,13 @@
-# MyExtremes
+# pyExtremeHelper
 
 Um pacote Python para análise de eventos extremos.
 
 ## Instalação
-
+'''
 python3 setup.py sdist
-pip3 install dist/pyExtremeHelper
 
+pip3 install dist/pyExtremeHelper
+'''
 ## Funcionalidades
 
 
