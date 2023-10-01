@@ -13,7 +13,7 @@ pip3 install dist/pyExtremeHelper
 
  Função     def ler_arquivo_dat(nome_arquivo):
 
-##Uso
+## Uso
 
 
  Função     def ler_arquivo_dat(nome_arquivo):
