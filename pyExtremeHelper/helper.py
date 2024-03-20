@@ -6,7 +6,7 @@ from scipy.ndimage import gaussian_filter1d
 mu_0 = 1.25663706212e-6  # Permeability of Free Space (H/m)
 
 class pyExtremeHelper:
-    def ler_arquivo_dat(nome_arquivo):
+    def ler_arquivo_dat(self,nome_arquivo):
         with open(nome_arquivo, "r") as arquivo:
             conteudo = arquivo.readlines()  # Lê todas as linhas do arquivo
             
@@ -34,31 +34,31 @@ class pyExtremeHelper:
             df = pd.DataFrame(dados, columns=variaveis)
             return df
     
-    def calculate_B_diff(df1, df2):
+    def calculate_B_diff(self,df1, df2):
         '''
         Calculate the magnetic field difference between two satellites.
         '''
         B_diff = df1[['B_vec_xyz_gse__C1_CP_FGM_FULL1','B_vec_xyz_gse__C1_CP_FGM_FULL2', 'B_vec_xyz_gse__C1_CP_FGM_FULL3']].values - df2[['B_vec_xyz_gse__C1_CP_FGM_FULL1','B_vec_xyz_gse__C1_CP_FGM_FULL2', 'B_vec_xyz_gse__C1_CP_FGM_FULL3']].values
         return B_diff
     
-    def calculate_r_diff(df1, df2):
+    def calculate_r_diff(self,df1, df2):
         '''
         Calculate the distance between two satellites.
         '''
         r_diff = df1[['sc_pos_xyz_gse__C1_CP_FGM_FULL1', 'sc_pos_xyz_gse__C1_CP_FGM_FULL2', 'sc_pos_xyz_gse__C1_CP_FGM_FULL3']].values - df2[['sc_pos_xyz_gse__C1_CP_FGM_FULL1', 'sc_pos_xyz_gse__C1_CP_FGM_FULL2', 'sc_pos_xyz_gse__C1_CP_FGM_FULL3']].values
         return r_diff
     
-    def calculate_current_density(df1, df2, df3):
+    def calculate_current_density(self, df1, df2, df3):
         '''
         Calculate the total current density using equation (2)
         '''
-        r12 = calculate_r_diff(df1, df2)
-        r13 = calculate_r_diff(df1, df3)
-        r23 = calculate_r_diff(df2, df3)
+        r12 = self.calculate_r_diff(df1, df2)
+        r13 = self.calculate_r_diff(df1, df3)
+        r23 = self.calculate_r_diff(df2, df3)
     
-        B12 = calculate_B_diff(df1, df2)
-        B13 = calculate_B_diff(df1, df3)
-        B23 = calculate_B_diff(df2, df3)
+        B12 = self.calculate_B_diff(df1, df2)
+        B13 = self.calculate_B_diff(df1, df3)
+        B23 = self.calculate_B_diff(df2, df3)
         
         temp = pd.DataFrame()
         temp['r13'] = r13.tolist()
@@ -69,17 +69,17 @@ class pyExtremeHelper:
         Jijk = temp.apply(lambda row: (1/mu_0) * ((np.dot(row['B13'], row['r23']) - np.dot(row['B23'], row['r13']))/ np.dot(np.cross(row['r13'], row['r23']), np.cross(row['r13'], row['r23']))), axis=1)
     
         return Jijk
-    def curlometer(spacecraft1, spacecraft2, spacecraft3, spacecraft4):
+    def curlometer(self, spacecraft1, spacecraft2, spacecraft3, spacecraft4):
         '''
         Calculate the curlometer current density using equation (2)
         '''
-        J123 = calculate_current_density(spacecraft1, spacecraft2, spacecraft3)
-        J124 = calculate_current_density(spacecraft1, spacecraft2, spacecraft4)
-        J134 = calculate_current_density(spacecraft1, spacecraft3, spacecraft4)
-        J234 = calculate_current_density(spacecraft2, spacecraft3, spacecraft4)
+        J123 = self.calculate_current_density(spacecraft1, spacecraft2, spacecraft3)
+        J124 = self.calculate_current_density(spacecraft1, spacecraft2, spacecraft4)
+        J134 = self.calculate_current_density(spacecraft1, spacecraft3, spacecraft4)
+        J234 = self.calculate_current_density(spacecraft2, spacecraft3, spacecraft4)
         return (((J123 + J124 + J134 + J234)/4)**2)**0.5
     
-    def calculate_mod_B(df, Bx_column, By_column, Bz_column):
+    def calculate_mod_B(self, df, Bx_column, By_column, Bz_column):
         """
         Function to calculate mod_B from the given pandas dataframe and column names.
         Args:
@@ -100,13 +100,13 @@ class pyExtremeHelper:
         return yy
     
     # Util function to plot the mod_B
-    def plot_mod_B(yy):
+    def plot_mod_B(self,yy):
         plt.figure()
         plt.plot(yy)
         plt.show()
     
     
-    def calculate_PVI(x, tau=66):
+    def calculate_PVI(self,x, tau=66):
         """
         Function to calculate PVI from the given pandas series
         Args:
@@ -145,37 +145,37 @@ class pyExtremeHelper:
         return PVI
     
     # Using matplotlib for plotting
-    def plot_data(PVI):
+    def plot_data(self,PVI):
         plt.figure()
         plt.plot(PVI)
         plt.show()
     
     
-    def norm(vector):
+    def norm(self,vector):
         return np.sqrt(np.sum(np.square(vector)))
     
-    def dot(v1, v2):
+    def dot(self,v1, v2):
         return np.dot(v1, v2)
         
-    def angle(v1, v2):
-        v1_norm = norm(v1)
-        v2_norm = norm(v2)
+    def angle(self, v1, v2):
+        v1_norm = self.norm(v1)
+        v2_norm = self.norm(v2)
         
         v1 = v1 / v1_norm
         v2 = v2 / v2_norm
         
-        dot_product = dot(v1, v2)
+        dot_product = self.dot(v1, v2)
         
         return 180.0 * np.arccos(dot_product) / np.pi
     
-    def cs_detection(df, tau, theta_c):
+    def cs_detection(self, df, tau, theta_c):
         b1 = df.iloc[0:tau].values
         b2 = df.iloc[tau:2*tau].values
         
         ff_c = 0.15
         cont = 0
         for i in range(tau):
-            theta = angle(b1[i], b2[i])
+            theta = self.angle(b1[i], b2[i])
             if theta >= theta_c:
                 cont +=1
         
@@ -188,7 +188,7 @@ class pyExtremeHelper:
         
         return out
     
-    def limethod(df, theta_c = 35.0, tau_sec = 10):
+    def limethod(self,df, theta_c = 35.0, tau_sec = 10):
         
         # Calculate timesteps
         dt = 1.0 / 22.0
@@ -198,21 +198,21 @@ class pyExtremeHelper:
         data_points = df.values
         for i in range(tau, len(data_points) - tau):
             window = df.iloc[i-tau+1 : i+tau+1]
-            cs_out = cs_detection(window, tau, theta_c)
+            cs_out = self.cs_detection(window, tau, theta_c)
             outputs.append([df.index[i], cs_out])
             
         detected_df = pd.DataFrame(outputs, columns=['Time', 'cs_out'])
         
         return detected_df
     
-    def convert_to_float(s):
+    def convert_to_float(self,s):
         try:
             return float(s)
         except ValueError:
             # Handle specific formatting issues if necessary
             return float(s.replace('D', 'E'))
     
-    def calculate_magnetic_volatility(df, B, tau=50, w=50):
+    def calculate_magnetic_volatility(self,df, B, tau=50, w=50):
         """
         Calcular a volatilidade magnética.
     
@@ -241,12 +241,12 @@ class pyExtremeHelper:
         
         return df['vol_mag']
     
-    def apply_gaussian_kernel(x_coords, sigma):
+    def apply_gaussian_kernel(self,x_coords, sigma):
         smoothed_x = gaussian_filter1d(x_coords, sigma)
         return smoothed_x
 
 
-    def declustering_function(data, u=30000, run=10):
+    def declustering_function(self,data, u=30000, run=10):
         # Threshold and run are parameters for the function with default values
         # Compute the POT (Peaks Over Threshold)
         pot_df = data[data['value'] > u].copy()
@@ -321,7 +321,7 @@ class pyExtremeHelper:
 
     # %%
     # Define the mean and standard deviation of excess
-    def stats_excess(data, threshold):
+    def stats_excess(self,data, threshold):
         # Extract values above the threshold
         excess = data[data > threshold]
 
@@ -334,12 +334,12 @@ class pyExtremeHelper:
         return mean_excess, std_excess
 
     # Function to plot mean excess for multiple thresholds
-    def plot_mean_excess(data, min_thresh, max_thresh, num_threshs=100):
+    def plot_mean_excess(self,data, min_thresh, max_thresh, num_threshs=100):
         # Create a numpy array of thresholds from min_thresh to max_thresh
         thresholds = np.linspace(min_thresh, max_thresh, num_threshs)
 
         # Calculate mean excess and its standard deviation for each threshold
-        mean_excesses, std_excesses = zip(*[stats_excess(data, thresh) for thresh in thresholds])
+        mean_excesses, std_excesses = zip(*[self.stats_excess(data, thresh) for thresh in thresholds])
 
         # Create a figure and axes
         fig, ax = plt.subplots()
@@ -354,7 +354,7 @@ class pyExtremeHelper:
         # Show the plot
         plt.show()
 
-    def fit_pot_model(data, min_threshold, max_threshold, num_thresholds):
+    def fit_pot_model(self,data, min_threshold, max_threshold, num_thresholds):
         """
         This function fits a Peaks Over Threshold (POT) model to a range of thresholds.
         :param data: A pandas Series or DataFrame.
@@ -382,7 +382,7 @@ class pyExtremeHelper:
 
         return pd.DataFrame(results)
 
-    def plot_shape_parameter(results):
+    def plot_shape_parameter(self,results):
         """
         This function plots the 'Shape' parameter of the Peaks Over Threshold (POT) model.
         :param results: A DataFrame with the fitted parameters of the POT model for each threshold.
@@ -398,7 +398,7 @@ class pyExtremeHelper:
     # Assume 'results' is the DataFrame returned by 'fit_pot_model'
     # You may need to run `fit_pot_model` function prior to plot
 
-    def plot_mean_residual_life(data, thresholds):
+    def plot_mean_residual_life(self,data, thresholds):
         plt.figure(figsize = (10, 5))
         means = []
 

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pyExtremeHelper',
-    version='0.1',
+    version='0.3',
     packages=find_packages(),
     license='MIT',
     description='Um pacote Python para analise de eventos extremos',
