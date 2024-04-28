@@ -7,5 +7,5 @@ setup(
     license='MIT',
     description='Um pacote Python para analise de eventos extremos',
     long_description=open('README.md').read(),
-    install_requires=['numpy'],  
+    install_requires=['numpy', 'scipy', 'matplotlib', 'pandas'],  
 )
