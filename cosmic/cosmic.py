@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter1d
 mu_0 = 1.25663706212e-6  # Permeability of Free Space (H/m)
 
-class pyExtremeHelper:
+class cosmic:
     def ler_arquivo_dat(self,nome_arquivo):
         with open(nome_arquivo, "r") as arquivo:
             conteudo = arquivo.readlines()  # Lê todas as linhas do arquivo
