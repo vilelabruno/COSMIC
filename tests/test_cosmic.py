@@ -6,7 +6,8 @@ import pandas as pd
 import pytest
 
 import cosmic.cosmic as cosmic_module
-from cosmic.cosmic import mu_0, cosmic
+from cosmic.cosmic import MVAResult, SpectrumResult, TimingResult, mu_0, cosmic
+from cosmic.utils import detect_outliers, median_absolute_deviation
 
 
 POS_COLS = [
@@ -247,3 +248,254 @@ def test_declustering_function_returns_cluster_maxima(cosmic_obj):
 
     assert declustered["value"].tolist() == [32000, 34000]
     assert declustered.index.tolist() == [1, 6]
+
+
+def test_calculate_magnetic_energy_density_returns_expected_values(cosmic_obj):
+    df = pd.DataFrame(
+        {
+            B_COLS[0]: [1.0, 0.0],
+            B_COLS[1]: [0.0, 2.0],
+            B_COLS[2]: [0.0, 0.0],
+        }
+    )
+    energy = cosmic_obj.calculate_magnetic_energy_density(df)
+    expected = np.array([1.0, 4.0]) / (2.0 * mu_0)
+    np.testing.assert_allclose(energy.to_numpy(), expected)
+
+
+def test_normalize_magnetic_field_standardises_columns(cosmic_obj):
+    df = pd.DataFrame(
+        {
+            B_COLS[0]: [1.0, 2.0, 3.0],
+            B_COLS[1]: [2.0, 4.0, 6.0],
+            B_COLS[2]: [3.0, 6.0, 9.0],
+            "other": [10, 20, 30],
+        }
+    )
+    normalised = cosmic_obj.normalize_magnetic_field(df)
+    for column in B_COLS:
+        series = normalised[column]
+        assert pytest.approx(0.0) == float(series.mean())
+        assert pytest.approx(1.0) == float(series.std(ddof=0))
+    assert normalised["other"].tolist() == df["other"].tolist()
+
+
+def test_remove_outliers_interpolates_with_time_index(cosmic_obj):
+    index = pd.date_range("2020-01-01", periods=5, freq="S")
+    df = pd.DataFrame(
+        {
+            B_COLS[0]: [1.0, 2.0, 100.0, 2.0, 1.0],
+            B_COLS[1]: [0.0, 0.0, 0.0, 0.0, 0.0],
+            B_COLS[2]: [0.0, 0.0, 0.0, 0.0, 0.0],
+        },
+        index=index,
+    )
+    cleaned = cosmic_obj.remove_outliers(df, columns=[B_COLS[0]], threshold=3.0)
+    assert pytest.approx(cleaned.iloc[2][B_COLS[0]]) == 2.0
+
+
+def test_remove_outliers_allows_median_fill(cosmic_obj):
+    df = pd.DataFrame(
+        {
+            B_COLS[0]: [1.0, 2.0, 40.0, 2.0, 1.0],
+            B_COLS[1]: [0.0, 0.0, 0.0, 0.0, 0.0],
+            B_COLS[2]: [0.0, 0.0, 0.0, 0.0, 0.0],
+        }
+    )
+    cleaned = cosmic_obj.remove_outliers(
+        df,
+        columns=[B_COLS[0]],
+        threshold=3.0,
+        fill_strategy="median",
+    )
+    median_value = df[B_COLS[0]].median()
+    assert pytest.approx(cleaned.iloc[2][B_COLS[0]]) == median_value
+
+
+def test_resample_dataframe_changes_frequency(cosmic_obj):
+    index = pd.date_range("2020-01-01", periods=6, freq="S")
+    df = pd.DataFrame(
+        {
+            B_COLS[0]: np.arange(6, dtype=float),
+            B_COLS[1]: np.arange(6, dtype=float),
+            B_COLS[2]: np.arange(6, dtype=float),
+        },
+        index=index,
+    )
+    resampled = cosmic_obj.resample_dataframe(df, "2S", agg="mean")
+    assert len(resampled) == 3
+    np.testing.assert_allclose(resampled[B_COLS[0]].to_numpy(), np.array([0.5, 2.5, 4.5]))
+
+
+def test_mad_helpers_flag_expected_outliers():
+    series = pd.Series([1.0, 1.2, 0.9, 15.0])
+    mad = median_absolute_deviation(series)
+    assert mad > 0
+    mask = detect_outliers(series, threshold=3.0)
+    assert mask.tolist() == [False, False, False, True]
+
+
+def test_power_spectral_density_returns_slope(cosmic_obj):
+    sample_frequency = 10.0
+    time = np.arange(0, 100, 1 / sample_frequency)
+    series = np.sin(2 * np.pi * 1.0 * time) + 0.1 * np.random.default_rng(0).normal(size=time.size)
+
+    result = cosmic_obj.power_spectral_density(
+        series,
+        sample_frequency,
+        slope_range=(0.5, 2.0),
+    )
+
+    assert isinstance(result, SpectrumResult)
+    assert result.slope is not None
+    assert result.slope_range == (0.5, 2.0)
+
+
+def test_component_power_spectra_handles_parallel_perpendicular(cosmic_obj):
+    sample_frequency = 5.0
+    time = np.arange(0, 20, 1 / sample_frequency)
+    bx = 5.0 + np.sin(2 * np.pi * 0.2 * time)
+    by = 1.0 + 0.1 * np.cos(2 * np.pi * 0.5 * time)
+    bz = 0.5 + 0.05 * np.sin(2 * np.pi * 0.8 * time)
+    df = pd.DataFrame({B_COLS[0]: bx, B_COLS[1]: by, B_COLS[2]: bz})
+
+    spectra = cosmic_obj.component_power_spectra(df, sample_frequency)
+
+    for key in ("total", "parallel", "perpendicular"):
+        assert key in spectra
+        spec = spectra[key]
+        assert isinstance(spec, SpectrumResult)
+        assert len(spec.frequencies_hz) == len(spec.psd)
+
+
+def test_autocorrelation_identifies_decorrelation_lag(cosmic_obj):
+    series = [1.0, 0.0, 0.0, 0.0]
+    lags, corr, decorrelation = cosmic_obj.autocorrelation(series)
+
+    assert lags[0] == 0
+    assert corr[0] == pytest.approx(1.0)
+    assert decorrelation == 1
+
+
+def test_cross_correlation_recovers_time_shift(cosmic_obj):
+    fs = 20.0
+    time = np.arange(0, 1.0, 1 / fs)
+    base = np.sin(2 * np.pi * 3.0 * time)
+    shifted = np.roll(base, 4)
+
+    lags, corr, best_lag_seconds = cosmic_obj.cross_correlation(base, shifted, fs)
+
+    assert np.argmax(np.abs(corr)) == list(lags).index(-4)
+    assert pytest.approx(best_lag_seconds, rel=1e-3) == -4 / fs
+
+
+def test_structure_functions_matches_linear_series(cosmic_obj):
+    series = np.arange(10, dtype=float)
+    result = cosmic_obj.structure_functions(series, orders=(2,), lags=(1,))
+    assert result.shape == (1, 3)
+    assert pytest.approx(result.iloc[0]["structure_function"]) == 1.0
+
+
+def test_increment_kurtosis_handles_multiple_lags(cosmic_obj):
+    series = np.sin(np.linspace(0, 2 * np.pi, 50))
+    result = cosmic_obj.increment_kurtosis(series, lags=(1, 2, 3))
+    assert result["lag"].tolist() == [1, 2, 3]
+    assert result["kurtosis"].notna().all()
+
+
+def create_spacecraft_frame(position, magnetic):
+    data = {POS_COLS[i]: position[i] for i in range(3)}
+    data.update({B_COLS[i]: magnetic[i] for i in range(3)})
+    return pd.DataFrame(data, index=pd.Index([0]))
+
+
+def test_multi_spacecraft_pvi_returns_zero_for_identical_fields(cosmic_obj):
+    frames = [
+        create_spacecraft_frame([0.0, 0.0, 0.0], [5.0, 0.0, 0.0]),
+        create_spacecraft_frame([1.0, 0.0, 0.0], [5.0, 0.0, 0.0]),
+    ]
+    pvi = cosmic_obj.multi_spacecraft_pvi(frames)
+    assert pvi.shape == (1, 1)
+    assert pytest.approx(pvi.iloc[0, 0]) == 0.0
+
+
+def test_minimum_variance_analysis_recovers_principal_axes(cosmic_obj):
+    data = np.eye(3)
+    df = pd.DataFrame(data, columns=B_COLS)
+    result = cosmic_obj.minimum_variance_analysis(df)
+    assert isinstance(result, MVAResult)
+    assert np.all(np.diff(result.eigenvalues) <= 0)
+
+
+def test_timing_analysis_recovers_normal_and_velocity(cosmic_obj):
+    positions = [
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+    ]
+    times = [0.0, 0.1, 0.0, 0.0]
+    result = cosmic_obj.timing_analysis(times, positions)
+    assert isinstance(result, TimingResult)
+    assert pytest.approx(result.velocity, rel=1e-5) == 10.0
+    assert np.allclose(result.normal, np.array([1.0, 0.0, 0.0]), atol=1e-5)
+
+
+def make_linear_spacecraft_frames():
+    positions = [
+        [0.0, 0.0, 0.0],
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0],
+    ]
+    fields = positions
+    frames = [
+        create_spacecraft_frame(pos, field) for pos, field in zip(positions, fields)
+    ]
+    return frames
+
+
+def test_calculate_divergence_matches_expected_value(cosmic_obj):
+    frames = make_linear_spacecraft_frames()
+    divergence = cosmic_obj.calculate_divergence(*frames)
+    assert divergence.iloc[0] == pytest.approx(3.0, rel=1e-5)
+
+
+def test_magnetic_curvature_zero_for_uniform_field(cosmic_obj):
+    frames = [
+        create_spacecraft_frame([0.0, 0.0, 0.0], [1.0, 0.0, 0.0]),
+        create_spacecraft_frame([1.0, 0.0, 0.0], [1.0, 0.0, 0.0]),
+        create_spacecraft_frame([0.0, 1.0, 0.0], [1.0, 0.0, 0.0]),
+        create_spacecraft_frame([0.0, 0.0, 1.0], [1.0, 0.0, 0.0]),
+    ]
+    curvature = cosmic_obj.magnetic_curvature_and_radius(*frames)
+    assert pytest.approx(curvature.iloc[0]["curvature"]) == 0.0
+    assert np.isinf(curvature.iloc[0]["radius_of_curvature"])
+
+
+def test_current_helicity_zero_for_uniform_field(cosmic_obj):
+    frames = [
+        create_spacecraft_frame([0.0, 0.0, 0.0], [1.0, 0.0, 0.0]),
+        create_spacecraft_frame([1.0, 0.0, 0.0], [1.0, 0.0, 0.0]),
+        create_spacecraft_frame([0.0, 1.0, 0.0], [1.0, 0.0, 0.0]),
+        create_spacecraft_frame([0.0, 0.0, 1.0], [1.0, 0.0, 0.0]),
+    ]
+    helicity = cosmic_obj.current_helicity_components(*frames)
+    assert helicity.iloc[0]["helicity_density"] == pytest.approx(0.0)
+    assert helicity.iloc[0]["J_parallel"] == pytest.approx(0.0)
+    assert helicity.iloc[0]["J_perpendicular"] == pytest.approx(0.0)
+
+
+def test_tetrahedron_quality_metrics_regular_configuration(cosmic_obj):
+    positions = [
+        [1.0, 1.0, 1.0],
+        [-1.0, -1.0, 1.0],
+        [-1.0, 1.0, -1.0],
+        [1.0, -1.0, -1.0],
+    ]
+    frames = [
+        create_spacecraft_frame(pos, [1.0, 0.0, 0.0]) for pos in positions
+    ]
+    quality = cosmic_obj.tetrahedron_quality_metrics(*frames)
+    assert quality.iloc[0]["Q_G"] == pytest.approx(3.0, rel=1e-3)
+    assert quality.iloc[0]["Q_R"] == pytest.approx(1.0, rel=1e-3)

@@ -7,6 +7,9 @@ O projeto nasceu como suporte a um TCC e agora foi organizado como uma bibliotec
 - Leitura e pré-processamento de arquivos `.dat` e CEF comprimindo a lógica usada nos notebooks originais.
 - Cálculo de gradientes e densidades de corrente via método do curlômetro.
 - Métricas auxiliares para estudos de turbulência (PVI, volatilidade magnética, suavização com kernel gaussiano).
+- Limpeza e normalização robusta de séries temporais com detecção de outliers, energia magnética e `resampling` em uma linha.
+- Diagnósticos espectrais (PSD total/paralelo/perpendicular), correlações temporal e espacial e funções de estrutura de alta ordem.
+- MVA, análise de timing multi-ponto, estimativa de curvatura das linhas de campo, helicidade e fatores de qualidade do tetraedro.
 - Ferramentas de análise de valores extremos (POT, declustering e visualizações associadas).
 - Testes automatizados em `pytest`, garantindo a reprodutibilidade dos notebooks.
 
@@ -51,6 +54,24 @@ curl = analyzer.curlometer(df1, df2, df3, df4)
 mod_B = analyzer.calculate_mod_B(df1, *analyzer.config.magnetic_columns)
 pvi = analyzer.calculate_PVI(mod_B, tau=66)
 cs_events = analyzer.limethod(df1[analyzer.config.magnetic_columns], theta_c=45.0, tau_sec=5.0)
+
+# Limpeza, energia magnética e reamostragem
+clean_df = analyzer.remove_outliers(df1, threshold=3.0)
+energy_density = analyzer.calculate_magnetic_energy_density(df1)
+normalized = analyzer.normalize_magnetic_field(df1)
+coarse = analyzer.resample_dataframe(df1, "1min")
+
+# Espectro, correlações e estatísticas de ordem superior
+psd = analyzer.power_spectral_density(mod_B, sample_frequency_hz=22.0, slope_range=(0.1, 1.0))
+spectra = analyzer.component_power_spectra(df1[analyzer.config.magnetic_columns], sample_frequency_hz=22.0)
+lags, autocorr, decor = analyzer.autocorrelation(mod_B, max_lag=200)
+structure = analyzer.structure_functions(mod_B, orders=(2, 4), lags=(5, 20, 50))
+
+# Gradientes e geometria multi-ponto
+divB = analyzer.calculate_divergence(df1, df2, df3, df4)
+curvature = analyzer.magnetic_curvature_and_radius(df1, df2, df3, df4)
+helicity = analyzer.current_helicity_components(df1, df2, df3, df4)
+quality = analyzer.tetrahedron_quality_metrics(df1, df2, df3, df4)
 ```
 
 As rotinas de visualização aceitam um objeto `Axes` opcional e evitam chamar `plt.show()` automaticamente em ambientes de teste.
