@@ -79,11 +79,8 @@ Caso esteja em um ambiente sem `pytest`, instale as dependências apontadas em `
 - Código tipado, orientado a objetos e com docstrings.
 - Alias de compatibilidade (`cosmic`) para não quebrar notebooks existentes.
 - Testes automatizados que replicam os passos dos notebooks.
-- Documentação clara e pronta para ser exibida em portfólios / LinkedIn.
 
 ## Próximos passos sugeridos
 - Adicionar um pipeline de CI (GitHub Actions) para rodar os testes automaticamente.
 - Publicar o pacote no TestPyPI/PyPI.
 - Incluir scripts para baixar e preparar datasets da missão Cluster.
-
-Sinta-se à vontade para abrir *issues* ou enviar *pull requests*. Este repositório foi preparado com carinho para demonstrar boas práticas em ciência de dados, tecnologia e programação.
