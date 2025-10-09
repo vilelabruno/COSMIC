@@ -3,7 +3,8 @@ utils/
 __pycache__/
 *.py[cod]
 *$py.class
-
+venv/
+.vscode/
 # distribution / packaging
 .Python
 build/
