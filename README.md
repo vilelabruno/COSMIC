@@ -95,13 +95,3 @@ python3 -m pytest
 ```
 Os testes criam dados sintéticos e exercitam os fluxos completos de leitura, análise e visualização.  
 Caso esteja em um ambiente sem `pytest`, instale as dependências apontadas em `requirements-dev.txt`.
-
-## Boas práticas adotadas
-- Código tipado, orientado a objetos e com docstrings.
-- Alias de compatibilidade (`cosmic`) para não quebrar notebooks existentes.
-- Testes automatizados que replicam os passos dos notebooks.
-
-## Próximos passos sugeridos
-- Adicionar um pipeline de CI (GitHub Actions) para rodar os testes automaticamente.
-- Publicar o pacote no TestPyPI/PyPI.
-- Incluir scripts para baixar e preparar datasets da missão Cluster.
